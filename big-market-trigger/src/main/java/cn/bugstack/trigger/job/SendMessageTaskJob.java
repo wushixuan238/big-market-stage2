@@ -2,7 +2,6 @@ package cn.bugstack.trigger.job;
 
 import cn.bugstack.domain.task.model.entity.TaskEntity;
 import cn.bugstack.domain.task.service.ITaskService;
-import cn.bugstack.middleware.db.router.strategy.IDBRouterStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -24,15 +23,14 @@ public class SendMessageTaskJob {
     private ITaskService taskService;
     @Resource
     private ThreadPoolExecutor executor;
-    @Resource
-    private IDBRouterStrategy dbRouter;
+
 
     @Scheduled(cron = "0/5 * * * * ?")
     public void exec_db01() {
         try {
             // 设置库表
-            dbRouter.setDBKey(1);
-            dbRouter.setTBKey(0);
+//            dbRouter.setDBKey(1);
+//            dbRouter.setTBKey(0);
             // 查询未发送的任务
             List<TaskEntity> taskEntities = taskService.queryNoSendMessageTaskList();
             if (taskEntities.isEmpty()) return;
@@ -48,8 +46,6 @@ public class SendMessageTaskJob {
             }
         } catch (Exception e) {
             log.error("定时任务，扫描MQ任务表发送消息失败。", e);
-        } finally {
-            dbRouter.clear();
         }
     }
 
@@ -57,8 +53,8 @@ public class SendMessageTaskJob {
     public void exec_db02() {
         try {
             // 设置库表
-            dbRouter.setDBKey(2);
-            dbRouter.setTBKey(0);
+//            dbRouter.setDBKey(2);
+//            dbRouter.setTBKey(0);
             // 查询未发送的任务
             List<TaskEntity> taskEntities = taskService.queryNoSendMessageTaskList();
             if (taskEntities.isEmpty()) return;
@@ -74,8 +70,6 @@ public class SendMessageTaskJob {
             }
         } catch (Exception e) {
             log.error("定时任务，扫描MQ任务表发送消息失败。", e);
-        } finally {
-            dbRouter.clear();
         }
     }
 

@@ -14,8 +14,20 @@ app:
     # 跨域，开发阶段可以设置为 * 不限制
     cross-origin: '*'
 
-# Spring 配置；rabbitmq
+# 线程池配置
+thread:
+  pool:
+    executor:
+      config:
+        core-pool-size: 20
+        max-pool-size: 50
+        keep-alive-time: 5000
+        block-queue-size: 5000
+        policy: CallerRunsPolicy
+
+# Spring 配置
 spring:
+  # RabbitMQ配置
   rabbitmq:
     addresses: 127.0.0.1
     port: 5672
@@ -29,73 +41,126 @@ spring:
       send_award: send_award
       send_rebate: send_rebate
 
-# 线程池配置
-thread:
-  pool:
-    executor:
-      config:
-        core-pool-size: 20
-        max-pool-size: 50
-        keep-alive-time: 5000
-        block-queue-size: 5000
-        policy: CallerRunsPolicy
-
-# 多数据源路由配置，库数量 * 表数量 为2的次幂，如2库4表
-# mysql 5.x 配置 driver-class-name: com.mysql.jdbc.Driver    mysql-connector-java 5.1.34
-# mysql 8.x 配置 driver-class-name: com.mysql.cj.jdbc.Driver mysql-connector-java 8.0.22
-mini-db-router:
-  jdbc:
+  # ShardingJDBC 配置
+  shardingsphere:
+    mode:
+      type: Memory
     datasource:
-      dbCount: 2
-      tbCount: 4
-      default: db00
-      routerKey: userId
-      list: db01,db02
-      db00:
+      names: ds_main,ds0,ds1
+      ds_main:
+        type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://127.0.0.1:3306/big_market?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
+        url: jdbc:mysql://127.0.0.1:13306/big_market?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
         username: root
         password: 123456
-        type-class-name: com.zaxxer.hikari.HikariDataSource
-        pool:
-          pool-name: Retail_HikariCP
-          minimum-idle: 15 #最小空闲连接数量
-          idle-timeout: 180000 #空闲连接存活最大时间，默认600000（10分钟）
-          maximum-pool-size: 25 #连接池最大连接数，默认是10
-          auto-commit: true  #此属性控制从池返回的连接的默认自动提交行为,默认值：true
-          max-lifetime: 1800000 #此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
-          connection-timeout: 30000 #数据库连接超时时间,默认30秒，即30000
-          connection-test-query: SELECT 1
-      db01:
+        pool-name: Retail_HikariCP
+        minimum-idle: 15
+        idle-timeout: 180000
+        maximum-pool-size: 25
+        auto-commit: true
+        max-lifetime: 1800000
+        connection-timeout: 30000
+      ds0:
+        type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://127.0.0.1:3306/big_market_01?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
+        url: jdbc:mysql://127.0.0.1:13306/big_market_01?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
         username: root
         password: 123456
-        type-class-name: com.zaxxer.hikari.HikariDataSource
-        pool:
-          pool-name: Retail_HikariCP
-          minimum-idle: 15 #最小空闲连接数量
-          idle-timeout: 180000 #空闲连接存活最大时间，默认600000（10分钟）
-          maximum-pool-size: 25 #连接池最大连接数，默认是10
-          auto-commit: true  #此属性控制从池返回的连接的默认自动提交行为,默认值：true
-          max-lifetime: 1800000 #此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
-          connection-timeout: 30000 #数据库连接超时时间,默认30秒，即30000
-          connection-test-query: SELECT 1
-      db02:
+        pool-name: Retail_HikariCP
+        minimum-idle: 15
+        idle-timeout: 180000
+        maximum-pool-size: 25
+        auto-commit: true
+        max-lifetime: 1800000
+        connection-timeout: 30000
+      ds1:
+        type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://127.0.0.1:3306/big_market_02?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
+        url: jdbc:mysql://127.0.0.1:13306/big_market_02?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
         username: root
         password: 123456
-        type-class-name: com.zaxxer.hikari.HikariDataSource
-        pool:
-          pool-name: Retail_HikariCP
-          minimum-idle: 15 #最小空闲连接数量
-          idle-timeout: 180000 #空闲连接存活最大时间，默认600000（10分钟）
-          maximum-pool-size: 25 #连接池最大连接数，默认是10
-          auto-commit: true  #此属性控制从池返回的连接的默认自动提交行为,默认值：true
-          max-lifetime: 1800000 #此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
-          connection-timeout: 30000 #数据库连接超时时间,默认30秒，即30000
-          connection-test-query: SELECT 1
+        pool-name: Retail_HikariCP
+        minimum-idle: 15
+        idle-timeout: 180000
+        maximum-pool-size: 25
+        auto-commit: true
+        max-lifetime: 1800000
+        connection-timeout: 30000
+    rules:
+      sharding:
+        default-database-strategy:
+          none:
+        default-table-strategy:
+          none:
+        default-data-source-name: ds_main
+        sharding-algorithms:
+          database-hash:
+            type: HASH_MOD
+            props:
+              sharding-count: 2
+          table-hash:
+            type: HASH_MOD
+            props:
+              sharding-count: 4
+          database-inline:
+            type: INLINE
+            props:
+              algorithm-expression: ds${user_id % 2}
+          table-inline:
+            type: INLINE
+            props:
+              algorithm-expression: ${table_name}_00${user_id % 4}
+        tables:
+          raffle_activity:
+            actual-data-nodes: ds_main.raffle_activity
+          raffle_activity_count:
+            actual-data-nodes: ds_main.raffle_activity_count
+          raffle_activity_sku:
+            actual-data-nodes: ds_main.raffle_activity_sku
+          award:
+            actual-data-nodes: ds_main.award
+          rule_tree:
+            actual-data-nodes: ds_main.rule_tree
+          daily_behavior_rebate:
+            actual-data-nodes: ds_main.daily_behavior_rebate
+          raffle_activity_account:
+            actual-data-nodes: ds${0..1}.raffle_activity_account
+          raffle_activity_account_day:
+            actual-data-nodes: ds${0..1}.raffle_activity_account_day
+          raffle_activity_account_month:
+            actual-data-nodes: ds${0..1}.raffle_activity_account_month
+          raffle_activity_order:
+            actual-data-nodes: ds${0..1}.raffle_activity_order_${0..3:3}
+            table-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: table-hash
+          task:
+            actual-data-nodes: ds${0..1}.task
+          user_award_record:
+            actual-data-nodes: ds${0..1}.user_award_record_${0..3:3}
+            table-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: table-hash
+          user_behavior_rebate_order:
+            actual-data-nodes: ds${0..1}.user_behavior_rebate_order_${0..3:3}
+            database-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: database-hash
+            table-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: table-hash
+          user_raffle_order:
+            actual-data-nodes: ds${0..1}.user_raffle_order_${0..3:3}
+            table-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: table-hash
+    props:
+      sql-show: true
 
 mybatis:
   mapper-locations: classpath:/mybatis/mapper/*.xml

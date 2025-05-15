@@ -12,7 +12,6 @@ import cn.bugstack.infrastructure.event.EventPublisher;
 import cn.bugstack.infrastructure.persistent.dao.*;
 import cn.bugstack.infrastructure.persistent.po.*;
 import cn.bugstack.infrastructure.persistent.redis.IRedisService;
-import cn.bugstack.middleware.db.router.strategy.IDBRouterStrategy;
 import cn.bugstack.types.common.Constants;
 import cn.bugstack.types.enums.ResponseCode;
 import cn.bugstack.types.exception.AppException;
@@ -58,8 +57,6 @@ public class ActivityRepository implements IActivityRepository {
     private TransactionTemplate transactionTemplate;
     @Resource
     private IUserRaffleOrderDao userRaffleOrderDao;
-    @Resource
-    private IDBRouterStrategy dbRouter;
     @Resource
     private ActivitySkuStockZeroMessageEvent activitySkuStockZeroMessageEvent;
     @Resource
@@ -170,8 +167,6 @@ public class ActivityRepository implements IActivityRepository {
             raffleActivityAccountDay.setDayCount(createOrderAggregate.getDayCount());
             raffleActivityAccountDay.setDayCountSurplus(createOrderAggregate.getDayCount());
 
-            // 以用户ID作为切分键，通过 doRouter 设定路由【这样就保证了下面的操作，都是同一个链接下，也就保证了事务的特性】
-            dbRouter.doRouter(createOrderAggregate.getUserId());
             // 编程式事务
             transactionTemplate.execute(status -> {
                 try {
@@ -195,7 +190,7 @@ public class ActivityRepository implements IActivityRepository {
                 }
             });
         } finally {
-            dbRouter.clear();
+            // ShardingJDBC会自动处理分库分表路由，这里不需要做清理操作
         }
     }
 
@@ -350,8 +345,6 @@ public class ActivityRepository implements IActivityRepository {
             ActivityAccountDayEntity activityAccountDayEntity = createPartakeOrderAggregate.getActivityAccountDayEntity();
             UserRaffleOrderEntity userRaffleOrderEntity = createPartakeOrderAggregate.getUserRaffleOrderEntity();
 
-            // 统一切换路由，以下事务内的所有操作，都走一个路由
-            dbRouter.doRouter(userId);
             transactionTemplate.execute(status -> {
                 try {
                     // 1. 更新总账户
@@ -456,7 +449,7 @@ public class ActivityRepository implements IActivityRepository {
                 }
             });
         } finally {
-            dbRouter.clear();
+            // ShardingJDBC会自动处理分库分表路由，这里不需要做清理操作
         }
     }
 

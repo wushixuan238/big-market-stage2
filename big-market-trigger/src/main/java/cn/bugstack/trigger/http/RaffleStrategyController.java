@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -147,7 +148,7 @@ public class RaffleStrategyController implements IRaffleStrategyService {
 
     @RequestMapping(value = "query_raffle_strategy_rule_weight", method = RequestMethod.POST)
     @Override
-    public Response<List<RaffleStrategyRuleWeightResponseDTO>> queryRaffleStrategyRuleWeight(RaffleStrategyRuleWeightRequestDTO request) {
+    public Response<List<RaffleStrategyRuleWeightResponseDTO>> queryRaffleStrategyRuleWeight(@RequestBody RaffleStrategyRuleWeightRequestDTO request) {
         try {
             log.info("查询抽奖策略权重规则配置开始 userId:{} activityId：{}", request.getUserId(), request.getActivityId());
             // 1. 参数校验
@@ -159,6 +160,9 @@ public class RaffleStrategyController implements IRaffleStrategyService {
             // 3. 查询规则
             List<RaffleStrategyRuleWeightResponseDTO> raffleStrategyRuleWeightList = new ArrayList<>();
             List<RuleWeightVO> ruleWeightVOList = raffleRule.queryAwardRuleWeightByActivityId(request.getActivityId());
+            // Add sorting here
+            ruleWeightVOList.sort(Comparator.comparing(RuleWeightVO::getWeight));
+
             for (RuleWeightVO ruleWeightVO : ruleWeightVOList) {
                 // 转换对象
                 List<RaffleStrategyRuleWeightResponseDTO.StrategyAward> strategyAwards = new ArrayList<>();
@@ -177,6 +181,7 @@ public class RaffleStrategyController implements IRaffleStrategyService {
 
                 raffleStrategyRuleWeightList.add(raffleStrategyRuleWeightResponseDTO);
             }
+
             Response<List<RaffleStrategyRuleWeightResponseDTO>> response = Response.<List<RaffleStrategyRuleWeightResponseDTO>>builder()
                     .code(ResponseCode.SUCCESS.getCode())
                     .info(ResponseCode.SUCCESS.getInfo())
