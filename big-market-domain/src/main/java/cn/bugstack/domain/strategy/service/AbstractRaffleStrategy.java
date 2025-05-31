@@ -94,7 +94,7 @@ public abstract class AbstractRaffleStrategy implements IRaffleStrategy {
     public abstract DefaultTreeFactory.StrategyAwardVO raffleLogicTree(String userId, Long strategyId, Integer awardId);
 
     /**
-     * 抽奖结果过滤，决策树抽象方法
+     * 抽奖结果过滤，决策树抽象方法 子类具体实现
      *
      * @param userId      用户ID
      * @param strategyId  策略ID

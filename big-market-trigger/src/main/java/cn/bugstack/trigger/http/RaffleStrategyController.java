@@ -202,7 +202,7 @@ public class RaffleStrategyController implements IRaffleStrategyService {
      * 随机抽奖接口
      * <a href="http://localhost:8091/api/v1/raffle/strategy/random_raffle">/api/v1/raffle/random_raffle</a>
      *
-     * @param requestDTO 请求参数 {"strategyId":1000001}
+     * @param requestDTO 请求参数 {"strategyId":1000001}  此接口根据给定的策略 ID 执行随机抽奖 没有特定用户参与的上下文，测试用
      * @return 抽奖结果
      */
     @RequestMapping(value = "random_raffle", method = RequestMethod.POST)

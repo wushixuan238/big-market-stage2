@@ -32,4 +32,16 @@ public class UpdateActivitySkuStockJob {
         }
     }
 
+
+    @Scheduled(cron = "0/5 * * * * ?")
+    public void exec2() {
+        try {
+            ActivitySkuStockKeyVO activitySkuStockKeyVO = skuStock.takeQueueValue();
+            if (null == activitySkuStockKeyVO) return;
+            log.info("定时任务，更新活动sku库存 sku:{} activityId:{}", activitySkuStockKeyVO.getSku(), activitySkuStockKeyVO.getActivityId());
+        } catch (InterruptedException e) {
+            log.info("定时任务:更新活动sku库存失败", e);
+        }
+    }
+
 }

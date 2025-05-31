@@ -69,7 +69,7 @@ public abstract class AbstractRaffleActivityPartake implements IRaffleActivityPa
         UserRaffleOrderEntity userRaffleOrder = this.buildUserRaffleOrder(userId, activityId, currentDate);
 
 
-        // 5. 填充抽奖单实体对象
+        // 5. 填充抽奖单
         createPartakeOrderAggregate.setUserRaffleOrderEntity(userRaffleOrder);
 
         // 6. 保存聚合对象 - 一个领域内的一个聚合是一个事务操作

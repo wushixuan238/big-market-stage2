@@ -94,22 +94,16 @@ spring:
           none:
         default-data-source-name: ds_main
         sharding-algorithms:
-          database-hash:
-            type: HASH_MOD
+          sys_user_db_alg:
+            type: CLASS_BASED
             props:
-              sharding-count: 2
-          table-hash:
-            type: HASH_MOD
+              strategy: standard
+              algorithmClassName: cn.bugstack.types.common.MyDatabaseAlgorithm
+          sys_user_tbl_alg:
+            type: CLASS_BASED
             props:
-              sharding-count: 4
-          database-inline:
-            type: INLINE
-            props:
-              algorithm-expression: ds${user_id % 2}
-          table-inline:
-            type: INLINE
-            props:
-              algorithm-expression: ${table_name}_00${user_id % 4}
+              strategy: standard
+              algorithmClassName: cn.bugstack.types.common.MyTableAlgorithm
         tables:
           raffle_activity:
             actual-data-nodes: ds_main.raffle_activity
@@ -125,46 +119,74 @@ spring:
             actual-data-nodes: ds_main.daily_behavior_rebate
           raffle_activity_account:
             actual-data-nodes: ds${0..1}.raffle_activity_account
-          raffle_activity_account_day:
-            actual-data-nodes: ds${0..1}.raffle_activity_account_day
-          raffle_activity_account_month:
-            actual-data-nodes: ds${0..1}.raffle_activity_account_month
-          raffle_activity_order:
-            actual-data-nodes: ds${0..1}.raffle_activity_order_${0..3:3}
-            table-strategy:
-              standard:
-                sharding-column: user_id
-                sharding-algorithm-name: table-hash
-          task:
-            actual-data-nodes: ds${0..1}.task
-          user_award_record:
-            actual-data-nodes: ds${0..1}.user_award_record_${0..3:3}
-            table-strategy:
-              standard:
-                sharding-column: user_id
-                sharding-algorithm-name: table-hash
-          user_behavior_rebate_order:
-            actual-data-nodes: ds${0..1}.user_behavior_rebate_order_${0..3:3}
             database-strategy:
               standard:
                 sharding-column: user_id
-                sharding-algorithm-name: database-hash
+                sharding-algorithm-name: sys_user_db_alg
+          raffle_activity_account_day:
+            actual-data-nodes: ds${0..1}.raffle_activity_account_day
+            database-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: sys_user_db_alg
+          raffle_activity_account_month:
+            actual-data-nodes: ds${0..1}.raffle_activity_account_month
+            database-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: sys_user_db_alg
+          raffle_activity_order:
+            actual-data-nodes: ds${0..1}.raffle_activity_order_00${0..3}
+            database-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: sys_user_db_alg
             table-strategy:
               standard:
                 sharding-column: user_id
-                sharding-algorithm-name: table-hash
+                sharding-algorithm-name: sys_user_tbl_alg
+          task:
+            actual-data-nodes: ds${0..1}.task
+            database-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: sys_user_db_alg
+          user_award_record:
+            actual-data-nodes: ds${0..1}.user_award_record_00${0..3}
+            database-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: sys_user_db_alg
+            table-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: sys_user_tbl_alg
+          user_behavior_rebate_order:
+            actual-data-nodes: ds${0..1}.user_behavior_rebate_order_00${0..3}
+            database-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: sys_user_db_alg
+            table-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: sys_user_tbl_alg
           user_raffle_order:
-            actual-data-nodes: ds${0..1}.user_raffle_order_${0..3:3}
+            actual-data-nodes: ds${0..1}.user_raffle_order_00${0..3}
+            database-strategy:
+              standard:
+                sharding-column: user_id
+                sharding-algorithm-name: sys_user_db_alg
             table-strategy:
               standard:
                 sharding-column: user_id
-                sharding-algorithm-name: table-hash
+                sharding-algorithm-name: sys_user_tbl_alg
     props:
       sql-show: true
 
 mybatis:
   mapper-locations: classpath:/mybatis/mapper/*.xml
-  config-location:  classpath:/mybatis/config/mybatis-config.xml
+  config-location: classpath:/mybatis/config/mybatis-config.xml
 
 # Redis
 redis:
